@@ -36,7 +36,7 @@
 
 	<modules>
 		<module>transaction-server</module>
-		<module>accont-service</module>
+		<module>account-service</module>
 		<module>product-service</module>
 		<module>order-service</module>
 	</modules>
