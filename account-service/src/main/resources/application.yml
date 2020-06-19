@@ -1,6 +1,6 @@
 spring:
   application:
-    name: sample-spring-kotlin-microservice
+    name: account-service
   datasource:
     url: jdbc:postgresql://postgresql:5432/okteto
     username: okteto

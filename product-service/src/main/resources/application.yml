@@ -1,6 +1,6 @@
 spring:
   application:
-    name: order-service
+    name: product-service
   datasource:
     url: jdbc:postgresql://postgresql:5432/okteto
     username: okteto
