@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: sample-spring-kotlin-microservice
+  datasource:
+    url: jdbc:postgresql://postgresql:5432/okteto
+    username: okteto
+    password: okteto
+    hikari:
+      connection-timeout: 2000
+      initialization-fail-timeout: 0
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: okteto
+    password: okteto
+    connection-timeout: 2000
