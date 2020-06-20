@@ -2,9 +2,9 @@ spring:
   application:
     name: product-service
   datasource:
-    url: jdbc:postgresql://postgresql:5432/okteto
-    username: okteto
-    password: okteto
+    url: jdbc:postgresql://localhost:5432/trx
+    username: trx
+    password: trx123
     hikari:
       connection-timeout: 2000
       initialization-fail-timeout: 0
