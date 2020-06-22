@@ -1,6 +1,0 @@
-name: transaction-server
-image: okteto/maven
-command: ["mvn", "spring-boot:run" ]
-workdir: /app
-forward:
-- 8888:8888
