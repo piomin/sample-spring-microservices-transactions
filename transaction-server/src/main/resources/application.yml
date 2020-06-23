@@ -2,7 +2,7 @@ spring:
   application:
     name: transaction-server
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     connection-timeout: 2000
 server:
