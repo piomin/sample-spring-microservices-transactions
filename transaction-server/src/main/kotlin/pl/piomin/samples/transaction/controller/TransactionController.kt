@@ -19,6 +19,9 @@ class TransactionController(val repository: TransactionRepository,
     @GetMapping("/{id}")
     fun findById(@PathVariable id: String): DistributedTransaction? = repository.findById(id)
 
+    @GetMapping
+    fun findAll(): List<DistributedTransaction> = repository.findAll()
+
     @PutMapping("/{id}/finish/{status}")
     fun finish(@PathVariable id: String, @PathVariable status: DistributedTransactionStatus) {
         val transaction: DistributedTransaction? = repository.findById(id)
