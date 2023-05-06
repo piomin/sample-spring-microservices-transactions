@@ -1,6 +1,5 @@
 package pl.piomin.samples.account.listener
 
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
