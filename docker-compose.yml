@@ -1,0 +1,64 @@
+version: "3.7"
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3
+    ports:
+      - "5672:5672"
+  discovery-service:
+    image: springboot/discovery-service:1.0-SNAPSHOT
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: curl --fail http://localhost:8061/eureka/v2/apps || exit 1
+      interval: 4s
+      timeout: 2s
+      retries: 3
+  account-service:
+    image: springboot/account-service:1.0-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  product-service:
+    image: springboot/product-service:1.0-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  order-service:
+    image: springboot/order-service:1.0-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  transaction-server:
+    image: springboot/transaction-server:1.0-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
