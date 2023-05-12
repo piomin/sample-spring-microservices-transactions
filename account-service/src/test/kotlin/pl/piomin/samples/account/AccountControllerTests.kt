@@ -1,7 +1,7 @@
 package pl.piomin.samples.account
 
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -18,7 +18,6 @@ import pl.piomin.samples.account.domain.Account
 import pl.piomin.samples.account.listener.AccountTransactionEvent
 import pl.piomin.samples.account.repository.AccountRepository
 import pl.piomin.samples.account.service.EventBus
-import javax.management.loading.ClassLoaderRepository
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -84,7 +83,7 @@ class AccountControllerTests {
         headers.set("X-Transaction-ID", "1")
         val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
         val resp = template.exchange("/accounts/{id}/payment/{amount}", HttpMethod.PUT, entity, Account::class.java, 1, 1000)
-        assertEquals(200, resp.statusCodeValue)
+        assertTrue(resp.statusCode.is2xxSuccessful)
     }
 
 //    @Test
@@ -94,6 +93,6 @@ class AccountControllerTests {
         headers.set("X-Transaction-ID", "2")
         val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
         val resp = template.exchange("/accounts/{id}/withdrawal/{amount}", HttpMethod.PUT, entity, Account::class.java, 1, 1000)
-        assertEquals(200, resp.statusCodeValue)
+        assertTrue(resp.statusCode.is2xxSuccessful)
     }
 }

@@ -15,6 +15,7 @@ class ProductController(val repository: ProductRepository) {
     fun updateCount(@PathVariable id: Int, @PathVariable count: Int): Product {
         val product: Product = repository.findById(id).get()
         product.count -= count
+        repository.save(product)
         return product
     }
 
