@@ -1,5 +1,12 @@
 # Distributed transactions in microservices Demo Project [![Twitter](https://img.shields.io/twitter/follow/piotr_minkowski.svg?style=social&logo=twitter&label=Follow%20Me)](https://twitter.com/piotr_minkowski)
 
+[![CircleCI](https://circleci.com/gh/piomin/sample-spring-microservices-transactions.svg?style=svg)](https://circleci.com/gh/piomin/sample-spring-microservices-transactions)
+
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/dashboard?id=piomin_sample-spring-microservices-transactions)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=piomin_sample-spring-microservices-transactions&metric=bugs)](https://sonarcloud.io/dashboard?id=piomin_sample-spring-microservices-transactions)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=piomin_sample-spring-microservices-transactions&metric=coverage)](https://sonarcloud.io/dashboard?id=piomin_sample-spring-microservices-transactions)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=piomin_sample-spring-microservices-transactions&metric=ncloc)](https://sonarcloud.io/dashboard?id=piomin_sample-spring-microservices-transactions)
+
 In this project I'm demonstrating a simple architecture of microservices that perform distributed transactions. The example application applications are simple Spring Boot app that expose some HTTP endpoints for CRUD operations and connects to Postgres using Spring Data JPA.
 
 ## Getting Started 

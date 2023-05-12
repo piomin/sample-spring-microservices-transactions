@@ -1,6 +1,6 @@
 package pl.piomin.samples.order.domain
 
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "orders")
