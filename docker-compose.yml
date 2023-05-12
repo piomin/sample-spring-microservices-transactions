@@ -5,12 +5,21 @@ services:
     image: rabbitmq:3
     ports:
       - "5672:5672"
-  discovery-service:
-    image: springboot/discovery-service:1.0-SNAPSHOT
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: trx
+      POSTGRES_PASSWORD: trx123
+      POSTGRES_DB: trx
+    ports:
+      - "5432:5432"
+  discovery-server:
+    image: springboot/discovery-server:1.0-SNAPSHOT
     ports:
       - "8761:8761"
     healthcheck:
-      test: curl --fail http://localhost:8061/eureka/v2/apps || exit 1
+      test: curl --fail http://localhost:8761/eureka/v2/apps || exit 1
       interval: 4s
       timeout: 2s
       retries: 3
@@ -19,11 +28,12 @@ services:
     ports:
       - "8080"
     depends_on:
-      discovery-service:
+      discovery-server:
         condition: service_healthy
     links:
-      - discovery-service
+      - discovery-server
       - rabbitmq
+      - postgres
     environment:
       SPRING_PROFILES_ACTIVE: docker
   product-service:
@@ -31,11 +41,12 @@ services:
     ports:
       - "8080"
     depends_on:
-      discovery-service:
+      discovery-server:
         condition: service_healthy
     links:
-      - discovery-service
+      - discovery-server
       - rabbitmq
+      - postgres
     environment:
       SPRING_PROFILES_ACTIVE: docker
   order-service:
@@ -43,11 +54,12 @@ services:
     ports:
       - "8080"
     depends_on:
-      discovery-service:
+      discovery-server:
         condition: service_healthy
     links:
-      - discovery-service
+      - discovery-server
       - rabbitmq
+      - postgres
     environment:
       SPRING_PROFILES_ACTIVE: docker
   transaction-server:
@@ -55,10 +67,11 @@ services:
     ports:
       - "8080"
     depends_on:
-      discovery-service:
+      discovery-server:
         condition: service_healthy
     links:
-      - discovery-service
+      - discovery-server
       - rabbitmq
+      - postgres
     environment:
       SPRING_PROFILES_ACTIVE: docker

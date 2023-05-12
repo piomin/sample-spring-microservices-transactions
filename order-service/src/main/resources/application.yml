@@ -20,3 +20,17 @@ spring:
     host: localhost
     port: 5672
     connection-timeout: 2000
+---
+spring:
+  rabbitmq:
+    host: rabbitmq
+  datasource:
+    url: jdbc:postgresql://postgres:5432/trx
+  config:
+    activate:
+      on-profile: docker
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka/

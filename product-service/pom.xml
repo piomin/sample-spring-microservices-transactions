@@ -124,18 +124,20 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.3.1</version>
                         <configuration>
-                            <image>
-                                <name>springboot/${project.artifactId}:${project.version}</name>
-                            </image>
+                            <to>
+                                <image>springboot/${project.artifactId}:${project.version}</image>
+                            </to>
                         </configuration>
                         <executions>
                             <execution>
                                 <goals>
-                                    <goal>build-image</goal>
+                                    <goal>dockerBuild</goal>
                                 </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>

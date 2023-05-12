@@ -7,3 +7,15 @@ spring:
     connection-timeout: 2000
 server:
   port: 8888
+---
+spring:
+  rabbitmq:
+    host: rabbitmq
+  config:
+    activate:
+      on-profile: docker
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka/
