@@ -20,7 +20,7 @@
         <java.version>17</java.version>
         <kotlin.version>1.8.21</kotlin.version>
         <spring-cloud.version>2022.0.3</spring-cloud.version>
-        <testcontainers.version>1.18.1</testcontainers.version>
+        <testcontainers.version>1.18.2</testcontainers.version>
         <sonar.projectKey>piomin_sample-spring-microservices-transactions</sonar.projectKey>
         <sonar.organization>piomin</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
