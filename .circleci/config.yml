@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  analyze:
     docker:
       - image: 'cimg/openjdk:21.0'
     steps:
@@ -33,10 +33,6 @@ executors:
     environment:
       architecture: "amd64"
       platform: "linux/amd64"
-
-orbs:
-  maven: circleci/maven@1.4.1
-  tcc: atomicjar/testcontainers-cloud-orb@0.1.0
 
 workflows:
   build-and-deploy:
