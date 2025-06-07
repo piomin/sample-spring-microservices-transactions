@@ -33,7 +33,7 @@ public class TransactionControllerTests {
         var id: String? = null;
 
         @Container
-        val broker = RabbitMQContainer("rabbitmq:3.10.22")
+        val broker = RabbitMQContainer("rabbitmq:latest")
 
         @JvmStatic
         @DynamicPropertySource

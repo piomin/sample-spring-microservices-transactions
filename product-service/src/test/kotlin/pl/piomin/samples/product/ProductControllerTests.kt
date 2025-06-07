@@ -27,10 +27,10 @@ class ProductControllerTests {
 
     companion object {
         @Container
-        val container = PostgreSQLContainer<Nothing>("postgres:14")
+        val container = PostgreSQLContainer<Nothing>("postgres:15")
 
         @Container
-        val broker = RabbitMQContainer("rabbitmq:3.10.22")
+        val broker = RabbitMQContainer("rabbitmq:latest")
 
         @JvmStatic
         @DynamicPropertySource
