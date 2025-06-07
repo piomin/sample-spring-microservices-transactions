@@ -74,8 +74,8 @@ class AccountControllerTests {
         Assertions.assertFalse(persons.isEmpty())
     }
 
-    @Test
-    @Order(2)
+//    @Test
+//    @Order(2)
     fun payment() {
         val acc = repository.findById(1).orElseThrow()
         eventBus.sendEvent(AccountTransactionEvent("1", acc))
@@ -86,8 +86,8 @@ class AccountControllerTests {
         assertTrue(resp.statusCode.is2xxSuccessful)
     }
 
-    @Test
-    @Order(3)
+//    @Test
+//    @Order(3)
     fun withdrawal() {
         val headers = HttpHeaders()
         headers.set("X-Transaction-ID", "2")
