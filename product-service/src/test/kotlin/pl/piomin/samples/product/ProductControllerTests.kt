@@ -1,7 +1,6 @@
 package pl.piomin.samples.product
 
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -54,8 +53,8 @@ class ProductControllerTests {
 
         products.forEach { p ->
             val product = template.postForObject("/products", p, Product::class.java)
-            assertNotNull(product)
-            assertNotNull(product.id)
+            Assertions.assertNotNull(product)
+            Assertions.assertNotNull(product.id)
             println(product)
         }
     }
@@ -65,8 +64,8 @@ class ProductControllerTests {
     fun shouldUpdateProduct() {
         template.put("/products/{id}/count/{count}", null, 1, 10)
         val product = repository.findById(1)
-        assertTrue(!product.isEmpty)
-        assertEquals(90, product.get().count)
+        Assertions.assertTrue(!product.isEmpty)
+        Assertions.assertEquals(90, product.get().count)
     }
 
 
