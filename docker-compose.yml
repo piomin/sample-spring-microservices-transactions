@@ -7,7 +7,7 @@ services:
       - "5672:5672"
   postgres:
     container_name: postgres
-    image: postgres:15
+    image: postgres:17
     environment:
       POSTGRES_USER: trx
       POSTGRES_PASSWORD: trx123
