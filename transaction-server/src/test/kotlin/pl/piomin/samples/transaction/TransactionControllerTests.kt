@@ -1,7 +1,7 @@
 package pl.piomin.samples.transaction;
 
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+//import org.junit.jupiter.api.Assertions.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,8 +55,8 @@ public class TransactionControllerTests {
 
        transactions.forEach { t ->
            val trxAdd = template.postForObject("/transactions", t, DistributedTransaction::class.java)
-           assertNotNull(trxAdd)
-           assertNotNull(trxAdd.id)
+           Assertions.assertNotNull(trxAdd)
+           Assertions.assertNotNull(trxAdd.id)
            if (trxAdd.status == DistributedTransactionStatus.NEW)
                id = trxAdd.id
            println(trxAdd)
@@ -67,14 +67,14 @@ public class TransactionControllerTests {
     @Order(2)
     fun shouldFindById() {
         val transaction = template.getForObject("/transactions/{id}", DistributedTransaction::class.java, id)
-        assertNotNull(transaction)
+        Assertions.assertNotNull(transaction)
     }
 
    @Test
    @Order(2)
    fun shouldFindAll() {
        val transactions = template.getForObject("/transactions", List::class.java)
-       assertFalse(transactions.isEmpty())
+       Assertions.assertFalse(transactions.isEmpty())
    }
 
    @Test
@@ -85,7 +85,7 @@ public class TransactionControllerTests {
        assertNotNull(message)
        println(message)
        assertNotNull(message.id)
-       assertEquals(DistributedTransactionStatus.CONFIRMED, message.status)
+       Assertions.assertEquals(DistributedTransactionStatus.CONFIRMED, message.status)
    }
 
 }
