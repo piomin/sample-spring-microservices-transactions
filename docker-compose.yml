@@ -2,12 +2,12 @@ version: "3.7"
 services:
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:4
+    image: rabbitmq:latest
     ports:
       - "5672:5672"
   postgres:
     container_name: postgres
-    image: postgres
+    image: postgres:15
     environment:
       POSTGRES_USER: trx
       POSTGRES_PASSWORD: trx123

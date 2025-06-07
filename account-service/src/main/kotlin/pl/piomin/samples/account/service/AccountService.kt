@@ -22,13 +22,10 @@ class AccountService(val repository: AccountRepository,
             transfer(id, (-1) * amount, transactionId)
 
     private fun transfer(id: Int, amount: Int, transactionId: String) {
-        val accountOpt: Optional<Account> = repository.findById(id)
-        if (accountOpt.isPresent) {
-            val account: Account = accountOpt.get()
-            account.balance += amount
-            applicationEventPublisher.publishEvent(AccountTransactionEvent(transactionId, account))
-            repository.save(account)
-        }
+        val account: Account = repository.findById(id).orElseThrow()
+        account.balance += amount
+        applicationEventPublisher.publishEvent(AccountTransactionEvent(transactionId, account))
+        repository.save(account)
     }
 
 }
