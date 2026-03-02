@@ -4,7 +4,8 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -22,6 +23,7 @@ import pl.piomin.samples.account.service.EventBus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.cloud.discovery.enabled=false"])
+@AutoConfigureTestRestTemplate
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AccountControllerTests {
@@ -60,7 +62,7 @@ class AccountControllerTests {
             Account(customerId = 2, balance = 100))
 
         accounts.forEach { a ->
-            val personAdd = template.postForObject("/accounts", a, Account::class.java)
+            val personAdd = template.postForObject("/accounts", a, Account::class.java)!!
             Assertions.assertNotNull(personAdd)
             Assertions.assertNotNull(personAdd.id)
             println(personAdd)
@@ -70,7 +72,7 @@ class AccountControllerTests {
     @Test
     @Order(2)
     fun shouldFindAccountsByCustomerId() {
-        val persons = template.getForObject("/accounts/customer/{customerId}", List::class.java, 1)
+        val persons = template.getForObject("/accounts/customer/{customerId}", List::class.java, 1)!!
         Assertions.assertFalse(persons.isEmpty())
     }
 

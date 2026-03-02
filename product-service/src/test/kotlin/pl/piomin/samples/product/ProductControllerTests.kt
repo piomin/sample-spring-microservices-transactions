@@ -3,7 +3,8 @@ package pl.piomin.samples.product
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
@@ -16,6 +17,7 @@ import pl.piomin.samples.product.repository.ProductRepository
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.cloud.discovery.enabled=false"])
+@AutoConfigureTestRestTemplate
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ProductControllerTests {
@@ -52,7 +54,7 @@ class ProductControllerTests {
             Product(name = "Test3", count = 1000, price = 10))
 
         products.forEach { p ->
-            val product = template.postForObject("/products", p, Product::class.java)
+            val product = template.postForObject("/products", p, Product::class.java)!!
             Assertions.assertNotNull(product)
             Assertions.assertNotNull(product.id)
             println(product)
