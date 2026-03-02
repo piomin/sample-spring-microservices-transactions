@@ -5,10 +5,10 @@ import org.junit.jupiter.api.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -19,6 +19,7 @@ import pl.piomin.samples.transaction.domain.DistributedTransactionStatus
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = ["spring.cloud.discovery.enabled=false"])
 @Import(TransactionBrokerConfiguration::class)
+@AutoConfigureTestRestTemplate
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 public class TransactionControllerTests {
@@ -33,13 +34,8 @@ public class TransactionControllerTests {
         var id: String? = null;
 
         @Container
+        @ServiceConnection
         val broker = RabbitMQContainer("rabbitmq:latest")
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.rabbitmq.port", broker::getAmqpPort)
-        }
    }
 
    @Test
@@ -54,7 +50,7 @@ public class TransactionControllerTests {
        )
 
        transactions.forEach { t ->
-           val trxAdd = template.postForObject("/transactions", t, DistributedTransaction::class.java)
+           val trxAdd = template.postForObject("/transactions", t, DistributedTransaction::class.java)!!
            Assertions.assertNotNull(trxAdd)
            Assertions.assertNotNull(trxAdd.id)
            if (trxAdd.status == DistributedTransactionStatus.NEW)
@@ -66,21 +62,21 @@ public class TransactionControllerTests {
     @Test
     @Order(2)
     fun shouldFindById() {
-        val transaction = template.getForObject("/transactions/{id}", DistributedTransaction::class.java, id)
+        val transaction = template.getForObject("/transactions/{id}", DistributedTransaction::class.java, id!!)
         Assertions.assertNotNull(transaction)
     }
 
    @Test
    @Order(2)
    fun shouldFindAll() {
-       val transactions = template.getForObject("/transactions", List::class.java)
+       val transactions = template.getForObject("/transactions", List::class.java)!!
        Assertions.assertFalse(transactions.isEmpty())
    }
 
    @Test
    @Order(3)
    fun shouldFinish() {
-       template.put("/transactions/{id}/finish/{status}", null, id, "CONFIRMED")
+       template.put("/transactions/{id}/finish/{status}", null, id!!, "CONFIRMED")
        val message: DistributedTransaction = rabbitTemplate.receiveAndConvert("trx-events") as DistributedTransaction
        assertNotNull(message)
        println(message)

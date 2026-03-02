@@ -47,7 +47,7 @@ class OrderController(val repository: OrderRepository,
     fun updateProduct(transactionId: String, order: Order): Product {
         val headers = HttpHeaders()
         headers.set("X-Transaction-ID", transactionId)
-        val entity: HttpEntity<*> = HttpEntity<Any?>(headers)
+        val entity: HttpEntity<*> = HttpEntity<Any>(headers)
         val product = restTemplate.exchange("http://product-service/products/{id}/count/{count}",
                 HttpMethod.PUT, entity, Product::class.java, order.id, order.count)
         return product.body!!
@@ -56,7 +56,7 @@ class OrderController(val repository: OrderRepository,
     fun updateAccount(transactionId: String, accountId: Int, totalPrice: Int): Account {
         val headers = HttpHeaders()
         headers.set("X-Transaction-ID", transactionId)
-        val entity: HttpEntity<*> = HttpEntity<Any?>(headers)
+        val entity: HttpEntity<*> = HttpEntity<Any>(headers)
         val account = restTemplate.exchange("http://account-service/accounts/{id}/withdrawal/{amount}",
                 HttpMethod.PUT, entity, Account::class.java, accountId, totalPrice)
         return account.body!!
