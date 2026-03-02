@@ -6,6 +6,11 @@ jobs:
       - image: 'cimg/openjdk:25.0.1'
     steps:
       - checkout
+      - git-shallow-clone/checkout_advanced:
+          clone_options: '--filter=blob:none'
+      - run:
+          name: "Git fetch"
+          command: git fetch --no-filter --refetch
       - run:
           name: Analyze on SonarCloud
           command: mvn verify sonar:sonar -DskipTests
@@ -33,6 +38,9 @@ executors:
     environment:
       architecture: "amd64"
       platform: "linux/amd64"
+
+orbs:
+  git-shallow-clone: guitarrapc/git-shallow-clone@2.8.0
 
 workflows:
   build-and-deploy:
