@@ -1,17 +1,17 @@
 package pl.piomin.samples.transaction;
 
 import org.junit.jupiter.api.*
-//import org.junit.jupiter.api.Assertions.*
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
+import org.springframework.boot.resttestclient.getForObject
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Import
-import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.rabbitmq.RabbitMQContainer
 import pl.piomin.samples.transaction.domain.DistributedTransaction
 import pl.piomin.samples.transaction.domain.DistributedTransactionParticipant
 import pl.piomin.samples.transaction.domain.DistributedTransactionStatus
@@ -62,7 +62,7 @@ public class TransactionControllerTests {
     @Test
     @Order(2)
     fun shouldFindById() {
-        val transaction = template.getForObject("/transactions/{id}", DistributedTransaction::class.java, id!!)
+        val transaction = template.getForObject<DistributedTransaction>("/transactions/{id}", id!!)
         Assertions.assertNotNull(transaction)
     }
 
