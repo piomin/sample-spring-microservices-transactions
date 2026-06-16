@@ -4,6 +4,7 @@ import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
+import org.springframework.amqp.support.converter.DefaultJacksonJavaTypeMapper
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.boot.test.context.TestConfiguration
@@ -23,5 +24,11 @@ class TransactionBrokerConfiguration {
         BindingBuilder.bind(queue).to(exchange).with("trx-events")
 
     @Bean
-    fun messageConverter(): MessageConverter = JacksonJsonMessageConverter()
+    fun messageConverter(): MessageConverter {
+        val typeMapper = DefaultJacksonJavaTypeMapper()
+        typeMapper.setTrustedPackages("pl.piomin.samples.transaction.domain")
+        val converter = JacksonJsonMessageConverter()
+        converter.setJavaTypeMapper(typeMapper)
+        return converter
+    }
 }
