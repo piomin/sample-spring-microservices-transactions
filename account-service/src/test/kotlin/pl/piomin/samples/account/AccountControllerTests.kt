@@ -3,13 +3,13 @@ package pl.piomin.samples.account
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.resttestclient.TestRestTemplate
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.expectBody
+import org.springframework.test.web.servlet.client.returnResult
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.junit.jupiter.Container
@@ -23,13 +23,11 @@ import pl.piomin.samples.account.service.EventBus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.cloud.discovery.enabled=false"])
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AccountControllerTests {
 
-    @Autowired
-    lateinit var template: TestRestTemplate
     @Autowired
     lateinit var eventBus: EventBus
     @Autowired
@@ -47,14 +45,17 @@ class AccountControllerTests {
 
     @Test
     @Order(1)
-    fun shouldAddAccount() {
+    fun shouldAddAccount(@Autowired client: RestTestClient) {
         val accounts = listOf(
             Account(customerId = 1, balance = 1000),
             Account(customerId = 2, balance = 3000),
             Account(customerId = 2, balance = 100))
 
         accounts.forEach { a ->
-            val personAdd = template.postForObject("/accounts", a, Account::class.java)!!
+            val personAdd = client.post().uri("/accounts").body(a)
+                .exchange()
+                .expectStatus().isOk
+                .returnResult<Account>().responseBody!!
             Assertions.assertNotNull(personAdd)
             Assertions.assertNotNull(personAdd.id)
             println(personAdd)
@@ -63,32 +64,39 @@ class AccountControllerTests {
 
     @Test
     @Order(2)
-    fun shouldFindAccountsByCustomerId() {
-        val persons = template.getForObject("/accounts/customer/{customerId}", List::class.java, 1)!!
-        Assertions.assertFalse(persons.isEmpty())
+    fun shouldFindAccountsByCustomerId(@Autowired client: RestTestClient) {
+        val result = client.get().uri("/accounts/customer/{customerId}", 1)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(object : ParameterizedTypeReference<List<Account>>() {})
+            .returnResult().responseBody
+        Assertions.assertNotNull(result)
+        Assertions.assertFalse(result!!.isEmpty())
     }
 
     @Test
     @Order(3)
-    fun payment() {
+    fun payment(@Autowired client: RestTestClient) {
         eventBus.sendTransaction(DistributedTransaction(id = "1", status = DistributedTransactionStatus.CONFIRMED))
-        val headers = HttpHeaders()
-        headers.set("X-Transaction-ID", "1")
-        val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
-        val resp = template.exchange("/accounts/{id}/payment/{amount}", HttpMethod.PUT, entity, Account::class.java, 1, 1000)
-        assertTrue(resp.statusCode.is2xxSuccessful)
-        Assertions.assertEquals(2000, resp.body!!.balance)
+        val account = client.put().uri("/accounts/{id}/payment/{amount}", 1, 1000)
+            .header("X-Transaction-ID", "1")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult<Account>().responseBody!!
+        Assertions.assertNotNull(account)
+        Assertions.assertEquals(2000, account.balance)
     }
 
     @Test
     @Order(4)
-    fun withdrawal() {
+    fun withdrawal(@Autowired client: RestTestClient) {
         eventBus.sendTransaction(DistributedTransaction(id = "2", status = DistributedTransactionStatus.CONFIRMED))
-        val headers = HttpHeaders()
-        headers.set("X-Transaction-ID", "2")
-        val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
-        val resp = template.exchange("/accounts/{id}/withdrawal/{amount}", HttpMethod.PUT, entity, Account::class.java, 1, 1000)
-        assertTrue(resp.statusCode.is2xxSuccessful)
-        Assertions.assertEquals(1000, resp.body!!.balance)
+        val account = client.put().uri("/accounts/{id}/withdrawal/{amount}", 1, 1000)
+            .header("X-Transaction-ID", "2")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult<Account>().responseBody!!
+        Assertions.assertNotNull(account)
+        Assertions.assertEquals(1000, account.balance)
     }
 }

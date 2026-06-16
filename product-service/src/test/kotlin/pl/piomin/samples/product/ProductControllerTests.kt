@@ -3,13 +3,11 @@ package pl.piomin.samples.product
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.resttestclient.TestRestTemplate
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
+import org.springframework.test.web.servlet.client.RestTestClient
+import org.springframework.test.web.servlet.client.returnResult
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.junit.jupiter.Container
@@ -24,13 +22,11 @@ import pl.piomin.samples.product.service.EventBus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["spring.cloud.discovery.enabled=false"])
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ProductControllerTests {
 
-    @Autowired
-    lateinit var template: TestRestTemplate
     @Autowired
     lateinit var eventBus: EventBus
     @Autowired
@@ -48,14 +44,17 @@ class ProductControllerTests {
 
     @Test
     @Order(1)
-    fun shouldAddProduct() {
+    fun shouldAddProduct(@Autowired client: RestTestClient) {
         val products = listOf(
             Product(name = "Test1", count = 100, price = 100),
             Product(name = "Test2", count = 10, price = 1000),
             Product(name = "Test3", count = 1000, price = 10))
 
         products.forEach { p ->
-            val product = template.postForObject("/products", p, Product::class.java)!!
+            val product = client.post().uri("/products").body(p)
+                .exchange()
+                .expectStatus().isOk
+                .returnResult<Product>().responseBody!!
             Assertions.assertNotNull(product)
             Assertions.assertNotNull(product.id)
             println(product)
@@ -64,12 +63,12 @@ class ProductControllerTests {
 
     @Test
     @Order(2)
-    fun shouldUpdateProduct() {
+    fun shouldUpdateProduct(@Autowired client: RestTestClient) {
         eventBus.sendTransaction(DistributedTransaction(id = "0", status = DistributedTransactionStatus.CONFIRMED))
-        val headers = HttpHeaders()
-        headers.set("X-Transaction-ID", "0")
-        val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
-        template.exchange("/products/{id}/count/{count}", HttpMethod.PUT, entity, Product::class.java, 1, 10)
+        client.put().uri("/products/{id}/count/{count}", 1, 10)
+            .header("X-Transaction-ID", "0")
+            .exchange()
+            .expectStatus().isOk
         val product = repository.findById(1)
         Assertions.assertTrue(!product.isEmpty)
         Assertions.assertEquals(90, product.get().count)
@@ -77,29 +76,26 @@ class ProductControllerTests {
 
     @Test
     @Order(3)
-    fun shouldUpdateProductWithTransaction() {
+    fun shouldUpdateProductWithTransaction(@Autowired client: RestTestClient) {
         val product = repository.findById(1).orElseThrow()
         eventBus.sendTransaction(DistributedTransaction(id = "1", status = DistributedTransactionStatus.CONFIRMED))
         eventBus.sendEvent(ProductTransactionEvent("1", product))
-        val headers = HttpHeaders()
-        headers.set("X-Transaction-ID", "1")
-        val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
-        val resp = template.exchange("/products/{id}/count/{count}", HttpMethod.PUT,
-            entity, Product::class.java, product.id!!, 5)
-        assertTrue(resp.statusCode.is2xxSuccessful)
+        client.put().uri("/products/{id}/count/{count}", product.id!!, 5)
+            .header("X-Transaction-ID", "1")
+            .exchange()
+            .expectStatus().is2xxSuccessful
     }
 
     @Test
     @Order(4)
-    fun shouldRollbackProductUpdate() {
+    fun shouldRollbackProductUpdate(@Autowired client: RestTestClient) {
         val product = repository.findById(1).orElseThrow()
         eventBus.sendTransaction(DistributedTransaction(id = "2", status = DistributedTransactionStatus.ROLLBACK))
         eventBus.sendEvent(ProductTransactionEvent("2", product))
-        val headers = HttpHeaders()
-        headers.set("X-Transaction-ID", "2")
-        val entity: HttpEntity<Nothing> = HttpEntity(null, headers)
-        val resp = template.exchange("/products/{id}/count/{count}", HttpMethod.PUT,
-            entity, Product::class.java, product.id!!, 5)
+        client.put().uri("/products/{id}/count/{count}", product.id!!, 5)
+            .header("X-Transaction-ID", "2")
+            .exchange()
+            .expectStatus().isOk
         Assertions.assertEquals(product.count, repository.findById(product.id!!).get().count)
     }
 
